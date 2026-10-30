@@ -1,4 +1,4 @@
-from .natural_numbers_interpretation.modules import (
+from .natural_numbers_interpretation import (
     check_ambiguities,
     is_phone_number,
     validate_phone,

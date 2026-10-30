@@ -5,7 +5,7 @@ import pytest
 
 homedir = Path(__file__).parent.parent
 print(homedir)
-path.append(f"{homedir}/src/natural-numbers-interpretation")
+path.append(f"{homedir}/src/natural_numbers_interpretation")
 
 from modules import (
     _check_0space_variances,
