@@ -22,15 +22,15 @@ def validate_phone(phone_number: int | str) -> bool:
     if len(tel_str) == 10:
         logger.info("Checking 10-digit number...")
         if not (tel_str.startswith(("2", "69"))):
-            logger.error("Invalid telephone number.")
+            logger.warning("Invalid telephone number: %s", tel_str)
             return False
     elif len(tel_str) == 14:
         logger.info("Checking 14-digit number...")
         if not (tel_str.startswith(("00302", "003069"))):
-            logger.error("Invalid telephone number.")
+            logger.warning("Invalid telephone number: %s", tel_str)
             return False
     else:
-        logger.error("Invalid telephone number.")
+        logger.warning("Invalid telephone number: %s", tel_str)
         return False
     logger.info("Telephone number is valid.")
     return True
@@ -108,8 +108,8 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     prefix_variance = phone_number[: find_zero_space.start() + 2]
     # The suffix goes till the number after the '0' and space sequence.
     suffix_to_check = phone_number[find_zero_space.end() - 2 :]
-    logger.info(f"Prefix variance: {prefix_variance}")
-    logger.info(f"Suffix to check: {suffix_to_check}")
+    logger.info("Prefix variance: %s", prefix_variance)
+    logger.info("Suffix to check: %s", suffix_to_check)
 
     # Create list of all possible prefixes
     # if prefix 10 -> ["10", "1"]
@@ -118,7 +118,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     while prefix_variance.endswith("0"):
         prefix_variance = prefix_variance[:-1]
         prefixes.append(prefix_variance)
-    logger.info(f"Prefixes generated: {prefixes}")
+    logger.info("Prefixes generated: %s", prefixes)
     # convert prefix into a set to remove duplicates.
     prefixes = set(prefixes)
 
@@ -130,8 +130,8 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     for suffix in suffix_variant:
         for prefix in prefixes:
             new_variant = prefix + " " + suffix
-            logger.info(f"New variant created: {new_variant}")
-            logger.info(f"New variant created: {new_variant}")
+            logger.info("New variant created: %s", new_variant)
+            logger.info("New variant created: %s", new_variant)
             variants.add(new_variant)
 
     # We combine the new variants with the existing ones
@@ -168,8 +168,8 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
     if search(r"\s\d\d\s", phone_number):
         logger.info("2-digits variance detected.")
         for match in findall(r"\s(\d[1-9])\s", phone_number):
-            logger.info(f"2-digits match found: {match}")
-            logger.info(f"Adding a 0 to the 2-digits match '{match}' in phone number.")
+            logger.info("2-digits match found: %s", match)
+            logger.info("Adding a 0 to the 2-digits match '%s' in phone number.", match)
             replace = match[0] + "0" + match[1]
             variants.add(phone_number.replace(match, replace))
 
@@ -194,7 +194,7 @@ def check_ambiguities(phone_number: str) -> list[str]:
     :return: A list of phone number variants with ambiguities resolved.
     """
 
-    logger.info(f"Starting ambiguity check for phone number: {phone_number}")
+    logger.info("Starting ambiguity check for phone number: %s", phone_number)
     if not phone_number:
         logger.error("Phone number cannot be empty.")
         raise TypeError("Phone number cannot be empty.")
@@ -212,8 +212,8 @@ def check_ambiguities(phone_number: str) -> list[str]:
     find_inter_prefix = search(r"^0\s*0\s*3\s*0", phone_number)
     if find_inter_prefix:
         logger.info(
-            f"prefix detected: '0030' \
-                found in position {find_inter_prefix.start()} till {find_inter_prefix.end()}"
+            "prefix detected: '0030' found in position %d till %d",
+            find_inter_prefix.start(), find_inter_prefix.end()
         )
         prefix = find_inter_prefix.group() + " "
         number = phone_number[find_inter_prefix.end() :].strip()
@@ -222,21 +222,21 @@ def check_ambiguities(phone_number: str) -> list[str]:
     find_nat_prefix = search(r"^(6\s*9|2)", number)
     if find_nat_prefix:
         logger.info(
-            f"national prefix detected: '{find_nat_prefix.group()}' \
-            found in position {find_nat_prefix.start()} till {find_nat_prefix.end()}"
+            "national prefix detected: '%s' found in position %d till %d",
+            find_nat_prefix.group(), find_nat_prefix.start(), find_nat_prefix.end()
         )
         prefix += find_nat_prefix.group() + " "
         number = number[find_nat_prefix.end() :].strip()
-    logger.info(f"Prefix: {prefix}")
-    logger.info(f"Number after prefix removal: {number}")
+    logger.info("Prefix: %s", prefix)
+    logger.info("Number after prefix removal: %s", number)
 
     # check for 0-space variances in the remaining number
     variants = _check_0space_variances(number)
-    logger.info(f"Variants after 0-space variance check: {len(variants)}")
+    logger.info("Variants after 0-space variance check: %d", len(variants))
 
     # Add 2-digits variances to the existing variants
     for variant in variants.copy():
-        logger.info(f"Checking 2 digits variances for variant: {variant}")
+        logger.info("Checking 2 digits variances for variant: %s", variant)
         variants += _check_2digits_variances(variant)
     logger.info("Ambiguity check completed.")
     variants = list({prefix + variant for variant in variants})
@@ -252,14 +252,14 @@ if __name__ == "__main__":
     logger = getLogger(__name__)
     check_phone = "0030 69 10 2 3 4 5 60 7 8"
     if not is_phone_number(check_phone):
-        logger.warning("Invalid phone number format.")
+        logger.warning(f"Invalid phone number format: {check_phone}")
         sys.exit(1)
     tic = time()
     variants = check_ambiguities(check_phone)
-    logger.info(f"Original telephone number: {check_phone}")
+    logger.info("Original telephone number: %s", check_phone)
     for i, variant in enumerate(variants):
         clean_phone = "".join(variant.split())
         valid = "VALID" if validate_phone(clean_phone) else "INVALID"
-        logger.info(f"Variant {i + 1}: {variant} (Clean: {clean_phone}) - {valid}")
+        logger.info("Variant %d: %s (Clean: %s) - %s", i + 1, variant, clean_phone, valid)
     toc = time()
-    logger.info(f"Time taken: {toc - tic} seconds")
+    logger.info("Time taken: %f seconds", toc - tic)

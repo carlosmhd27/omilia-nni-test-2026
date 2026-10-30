@@ -11,10 +11,10 @@ if getenv("DEV_MODE") == "true":
     from logging import INFO, basicConfig, getLogger
     from time import time
 
-    basicConfig(level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    basicConfig(level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S")
     logger = getLogger(__name__)
 
-    st.write("Developer mode is ON.")
+    st.write("Developer mode is enabled.")
     logger.info("Developer mode is enabled.")
 
 phone_number = st.text_input("Enter your telephone number (only digits and spaces):").strip()
