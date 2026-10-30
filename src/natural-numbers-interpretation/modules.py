@@ -17,7 +17,7 @@ def validate_phone(phone_number: int | str) -> bool:
     if not isinstance(phone_number, str):
         return False
 
-    ## erase all spaces from the phone number string
+    # erase all spaces from the phone number string
     tel_str = "".join(phone_number.split())
     if len(tel_str) == 10:
         logger.info("Checking 10-digit number...")
@@ -208,7 +208,7 @@ def check_ambiguities(phone_number: str) -> list[str]:
     logger.info("Checking for ambiguities in the telephone number...")
     prefix = ""
     number = phone_number
-    ## find international prefix "0030"
+    # find international prefix "0030"
     find_inter_prefix = search(r"^0\s*0\s*3\s*0", phone_number)
     if find_inter_prefix:
         logger.info(
@@ -218,7 +218,7 @@ def check_ambiguities(phone_number: str) -> list[str]:
         prefix = find_inter_prefix.group() + " "
         number = phone_number[find_inter_prefix.end() :].strip()
 
-    ## find national prefix "69" and "2"
+    # find national prefix "69" and "2"
     find_nat_prefix = search(r"^(6\s*9|2)", number)
     if find_nat_prefix:
         logger.info(
@@ -230,11 +230,11 @@ def check_ambiguities(phone_number: str) -> list[str]:
     logger.info(f"Prefix: {prefix}")
     logger.info(f"Number after prefix removal: {number}")
 
-    ## check for 0-space variances in the remaining number
+    # check for 0-space variances in the remaining number
     variants = _check_0space_variances(number)
     logger.info(f"Variants after 0-space variance check: {len(variants)}")
 
-    ## Add 2-digits variances to the existing variants
+    # Add 2-digits variances to the existing variants
     for variant in variants.copy():
         logger.info(f"Checking 2 digits variances for variant: {variant}")
         variants += _check_2digits_variances(variant)
