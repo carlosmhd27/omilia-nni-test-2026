@@ -1,5 +1,6 @@
 import streamlit as st
-from src import check_ambiguities, validate_phone, is_phone_number
+
+from src import check_ambiguities, is_phone_number, validate_phone
 
 st.title("Omilia Telephone Number App")
 
@@ -11,8 +12,8 @@ if phone_number and is_phone_number(phone_number):
     for i, variant in enumerate(variants):
         clean_phone = "".join(variant.split())
         valid = "VALID" if validate_phone(clean_phone) else "INVALID"
-        st.write(f"Variant {i+1}: {variant} (Clean: {clean_phone}) - {valid}")
-        table["Interpretation"].append(i+1)
+        st.write(f"Variant {i + 1}: {variant} (Clean: {clean_phone}) - {valid}")
+        table["Interpretation"].append(i + 1)
         table["Clean"].append(clean_phone)
         table["Valid"].append(valid)
     st.write("Summary Table:")

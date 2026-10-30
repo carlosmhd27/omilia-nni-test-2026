@@ -416,9 +416,9 @@ wheels = [
 ]
 
 [[package]]
-name = "omilia-telnum"
+name = "omilia-natural-numbers-interpretation"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "bandit" },
     { name = "pytest" },

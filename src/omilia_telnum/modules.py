@@ -1,13 +1,14 @@
 from logging import getLogger
-from re import match, search, findall
+from re import findall, match, search
 
 logger = getLogger(__name__)
+
 
 def validate_phone(phone_number: int | str) -> bool:
     """
     Validates the input telephone number.
     Ensures it follows the expected format for 10-digit and 14-digit numbers.
-    
+
     :input phone_number: The phone number to validate.
     :return: True if the phone number is valid, False otherwise.
     """
@@ -34,7 +35,8 @@ def validate_phone(phone_number: int | str) -> bool:
     logger.info("Telephone number is valid.")
     return True
 
-def is_phone_number(phone_number:str) -> bool:
+
+def is_phone_number(phone_number: str) -> bool:
     """
     Validates the input telephone number.
     Ensures it contains only digits and spaces.
@@ -55,6 +57,7 @@ def is_phone_number(phone_number:str) -> bool:
         return False
     return True
 
+
 def _check_0space_variances(phone_number: str | int) -> list[str]:
     """
     Checks for 0-space variances in the telephone number.
@@ -69,7 +72,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
         "1 2 30 4 5 6 7 8 9",
         "1 2 3 4 5 6 7 8 9"
         ]
-    
+
     :input phone_number: The phone number string to check for 0-space variances.
     :return: A list of phone number variants with 0-space variances resolved.
     """
@@ -88,11 +91,13 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
         logger.info("No 0-space variance detected after initial search.")
         return [phone_number]
     # i is set to prevent infinite loops in case of unexpected input patterns.
-    logger.info(f"0-space variance detected: '0' followed by space and digit found at position \
-                {find_zero_space.start()} till {find_zero_space.end()}")
+    logger.info(
+        f"0-space variance detected: '0' followed by space and digit found at position \
+                {find_zero_space.start()} till {find_zero_space.end()}"
+    )
 
     # Extract the prefix up to and including the '0' before the space and digit.
-    # We want to separate the number as prefix and suffix and keep iteracting 
+    # We want to separate the number as prefix and suffix and keep iteracting
     # over the suffix to check for further 0-space variances.
     # Example:
     # Input: "1 2 30 4 5 60 7 8 9"
@@ -100,9 +105,9 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     # Suffix to check: "4 5 60 7 8 9"
     # the prefix starts from the beginning of the phone number up to
     # and including the '0' before the space and digit.
-    prefix_variance = phone_number[:find_zero_space.start() + 2]
+    prefix_variance = phone_number[: find_zero_space.start() + 2]
     # The suffix goes till the number after the '0' and space sequence.
-    suffix_to_check = phone_number[find_zero_space.end()-2:]
+    suffix_to_check = phone_number[find_zero_space.end() - 2 :]
     print(f"Prefix variance: {prefix_variance}")
     print(f"Suffix to check: {suffix_to_check}")
 
@@ -140,7 +145,6 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     return list(variants)
 
 
-
 def _check_2digits_variances(phone_number: str) -> list[str]:
     """
     Checks for 2-digits variances in the phone number.
@@ -160,7 +164,6 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
     if not is_phone_number(phone_number):
         raise ValueError("Invalid phone number.")
 
-    
     variants = {phone_number}
     if search(r"\s\d\d\s", phone_number):
         print("2-digits variance detected.")
@@ -172,8 +175,8 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
 
     return list(variants)
 
-def check_ambiguities(phone_number: str) -> list[str]:
 
+def check_ambiguities(phone_number: str) -> list[str]:
     """
     Checks for ambiguities in the phone number by considering international and national prefixes,
     as well as 0-space and 2-digits variances.
@@ -208,16 +211,22 @@ def check_ambiguities(phone_number: str) -> list[str]:
     ## find international prefix "0030"
     find_inter_prefix = search(r"^0\s*0\s*3\s*0", phone_number)
     if find_inter_prefix:
-        logger.info(f"prefix detected: '0030' found in position {find_inter_prefix.start()} till {find_inter_prefix.end()}")
+        logger.info(
+            f"prefix detected: '0030' \
+                found in position {find_inter_prefix.start()} till {find_inter_prefix.end()}"
+        )
         prefix = find_inter_prefix.group() + " "
-        number = phone_number[find_inter_prefix.end():].strip()
+        number = phone_number[find_inter_prefix.end() :].strip()
 
     ## find national prefix "69" and "2"
     find_nat_prefix = search(r"^(6\s*9|2)", number)
     if find_nat_prefix:
-        logger.info(f"national prefix detected: '{find_nat_prefix.group()}' found in position {find_nat_prefix.start()} till {find_nat_prefix.end()}")
+        logger.info(
+            f"national prefix detected: '{find_nat_prefix.group()}' \
+            found in position {find_nat_prefix.start()} till {find_nat_prefix.end()}"
+        )
         prefix += find_nat_prefix.group() + " "
-        number = number[find_nat_prefix.end():].strip()
+        number = number[find_nat_prefix.end() :].strip()
     logger.info(f"Prefix: {prefix}")
     logger.info(f"Number after prefix removal: {number}")
 
@@ -227,10 +236,30 @@ def check_ambiguities(phone_number: str) -> list[str]:
 
     ## Add 2-digits variances to the existing variants
     for variant in variants.copy():
-            logger.info(f"Checking 2 digits variances for variant: {variant}")
-            variants += _check_2digits_variances(variant)
+        logger.info(f"Checking 2 digits variances for variant: {variant}")
+        variants += _check_2digits_variances(variant)
     logger.info("Ambiguity check completed.")
     variants = list({prefix + variant for variant in variants})
     return variants
 
 
+if __name__ == "__main__":
+    import sys
+    from logging import INFO, basicConfig, getLogger
+    from time import time
+
+    basicConfig(level=INFO)
+    logger = getLogger(__name__)
+    check_phone = "0030 69 10 2 3 4 5 60 7 8"
+    if not is_phone_number(check_phone):
+        logger.error("Invalid phone number format.")
+        sys.exit(1)
+    tic = time()
+    variants = check_ambiguities(check_phone)
+    print(f"Original telephone number: {check_phone}")
+    for i, variant in enumerate(variants):
+        clean_phone = "".join(variant.split())
+        valid = "VALID" if validate_phone(clean_phone) else "INVALID"
+        print(f"Variant {i + 1}: {variant} (Clean: {clean_phone}) - {valid}")
+    toc = time()
+    print(f"Time taken: {toc - tic} seconds")
