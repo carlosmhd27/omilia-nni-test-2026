@@ -1,17 +1,20 @@
+from os import getenv
+
 import streamlit as st
+from dotenv import load_dotenv
 
 from src import check_ambiguities, is_phone_number, validate_phone
-from dotenv import load_dotenv
-from os import getenv
 
 load_dotenv()
 st.title("Omilia Telephone Number App")
 
 if getenv("DEV_MODE") == "true":
     from logging import INFO, basicConfig, getLogger
-    from time import time
 
-    basicConfig(level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S")
+    basicConfig(
+        level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%H:%M:%S"
+                )
     logger = getLogger(__name__)
 
     st.write("Developer mode is enabled.")
