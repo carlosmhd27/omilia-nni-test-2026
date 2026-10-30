@@ -108,8 +108,8 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     prefix_variance = phone_number[: find_zero_space.start() + 2]
     # The suffix goes till the number after the '0' and space sequence.
     suffix_to_check = phone_number[find_zero_space.end() - 2 :]
-    print(f"Prefix variance: {prefix_variance}")
-    print(f"Suffix to check: {suffix_to_check}")
+    logger.info(f"Prefix variance: {prefix_variance}")
+    logger.info(f"Suffix to check: {suffix_to_check}")
 
     # Create list of all possible prefixes
     # if prefix 10 -> ["10", "1"]
@@ -118,7 +118,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     while prefix_variance.endswith("0"):
         prefix_variance = prefix_variance[:-1]
         prefixes.append(prefix_variance)
-    print(f"Prefixes generated: {prefixes}")
+    logger.info(f"Prefixes generated: {prefixes}")
     # convert prefix into a set to remove duplicates.
     prefixes = set(prefixes)
 
@@ -131,7 +131,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
         for prefix in prefixes:
             new_variant = prefix + " " + suffix
             logger.info(f"New variant created: {new_variant}")
-            print(f"New variant created: {new_variant}")
+            logger.info(f"New variant created: {new_variant}")
             variants.add(new_variant)
 
     # We combine the new variants with the existing ones
@@ -166,9 +166,9 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
 
     variants = {phone_number}
     if search(r"\s\d\d\s", phone_number):
-        print("2-digits variance detected.")
+        logger.info("2-digits variance detected.")
         for match in findall(r"\s(\d[1-9])\s", phone_number):
-            print(f"2-digits match found: {match}")
+            logger.info(f"2-digits match found: {match}")
             logger.info(f"Adding a 0 to the 2-digits match '{match}' in phone number.")
             replace = match[0] + "0" + match[1]
             variants.add(phone_number.replace(match, replace))
@@ -252,14 +252,14 @@ if __name__ == "__main__":
     logger = getLogger(__name__)
     check_phone = "0030 69 10 2 3 4 5 60 7 8"
     if not is_phone_number(check_phone):
-        logger.error("Invalid phone number format.")
+        logger.warning("Invalid phone number format.")
         sys.exit(1)
     tic = time()
     variants = check_ambiguities(check_phone)
-    print(f"Original telephone number: {check_phone}")
+    logger.info(f"Original telephone number: {check_phone}")
     for i, variant in enumerate(variants):
         clean_phone = "".join(variant.split())
         valid = "VALID" if validate_phone(clean_phone) else "INVALID"
-        print(f"Variant {i + 1}: {variant} (Clean: {clean_phone}) - {valid}")
+        logger.info(f"Variant {i + 1}: {variant} (Clean: {clean_phone}) - {valid}")
     toc = time()
-    print(f"Time taken: {toc - tic} seconds")
+    logger.info(f"Time taken: {toc - tic} seconds")

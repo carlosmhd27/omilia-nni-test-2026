@@ -1,8 +1,21 @@
 import streamlit as st
 
 from src import check_ambiguities, is_phone_number, validate_phone
+from dotenv import load_dotenv
+from os import getenv
 
+load_dotenv()
 st.title("Omilia Telephone Number App")
+
+if getenv("DEV_MODE") == "true":
+    from logging import INFO, basicConfig, getLogger
+    from time import time
+
+    basicConfig(level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logger = getLogger(__name__)
+
+    st.write("Developer mode is ON.")
+    logger.info("Developer mode is enabled.")
 
 phone_number = st.text_input("Enter your telephone number (only digits and spaces):").strip()
 if phone_number and is_phone_number(phone_number):
