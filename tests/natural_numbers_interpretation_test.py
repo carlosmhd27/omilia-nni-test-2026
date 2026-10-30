@@ -2,6 +2,11 @@ from pathlib import Path
 from sys import path
 
 import pytest
+
+homedir = Path(__file__).parent.parent
+print(homedir)
+path.append(f"{homedir}/src/natural-numbers-interpretation")
+
 from modules import (
     _check_0space_variances,
     _check_2digits_variances,
@@ -9,10 +14,6 @@ from modules import (
     is_phone_number,
     validate_phone,
 )
-
-homedir = Path(__file__).parent.parent
-print(homedir)
-path.append(f"{homedir}/src/omilia_telnum")
 
 
 def test_validate_phone():
