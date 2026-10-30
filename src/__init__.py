@@ -1,1 +1,1 @@
-from .omilia_telnum import check_ambiguities, is_phone_number, validate_phone
+from .natural_numbers_interpretation import check_ambiguities, is_phone_number, validate_phone
