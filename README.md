@@ -31,5 +31,5 @@ To get started with this project, you can install the required dependencies and 
 To run the tests, use the following command:
 ```bash
 cd omilia-natural-numbers-interpretation
-uv run pytest tests
+uv run pytest
 ```
