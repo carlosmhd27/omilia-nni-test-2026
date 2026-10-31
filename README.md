@@ -15,9 +15,10 @@ To get started with this project, you can install the required dependencies and 
    cd omilia-natural-numbers-interpretation
    ```
 
-2. Install uv:
+2. Install uv and syncing it:
    ```bash
     pip install uv
+    uv sync
    ```
 
 3. Run the streamlit application:
