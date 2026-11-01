@@ -65,12 +65,12 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     by one or more spaces and then a digit.
 
     Example:
-        Input: "1 2 30 4 5 60 7 8 9"
+        Input: "1 2 300 24 5 60 7 8 9"
         Output: [
-        "1 2 30 4 5 60 7 8 9",
-        "1 2 3 4 5 60 7 8 9",
-        "1 2 30 4 5 6 7 8 9",
-        "1 2 3 4 5 6 7 8 9"
+        "1 2 300 24 5 60 7 8 9",
+        "1 2 324 5 60 7 8 9",
+        "1 2 300 24 5 6 7 8 9",
+        "1 2 324 5 6 7 8 9"
         ]
 
     :input phone_number: The phone number string to check for 0-space variances.
@@ -86,7 +86,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     logger.info(f"Checking for 0-space variances phone number {phone_number}")
     variants = {phone_number}
 
-    find_zero_space = search(r"\d0\s+\d[\s|$]+", phone_number)
+    find_zero_space = search(r"\d0\s+\d", phone_number)
     if not find_zero_space:
         logger.info("No 0-space variance detected after initial search.")
         return [phone_number]
@@ -100,29 +100,44 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     # We want to separate the number as prefix and suffix and keep iteracting
     # over the suffix to check for further 0-space variances.
     # Example:
-    # Input: "1 2 30 4 5 60 7 8 9"
-    # Prefix variants: ["1 2 30", "1 2 3"]
-    # Suffix to check: "4 5 60 7 8 9"
+    # Input: "1 2 300 24 5 60 7 8 9"
+    # Prefix variants: ["1 2 300", "1 2 3"]
+    # Suffix to check: "24 5 60 7 8 9"
     # the prefix starts from the beginning of the phone number up to
     # and including the '0' before the space and digit.
     prefix_variance = phone_number[: find_zero_space.start() + 2]
     # The suffix goes till the number after the '0' and space sequence.
-    suffix_to_check = phone_number[find_zero_space.end() - 2 :]
+    suffix_to_check = phone_number[find_zero_space.end() - 1 :]
     logger.info("Prefix variance: %s", prefix_variance)
     logger.info("Suffix to check: %s", suffix_to_check)
 
+    # If the amount of consecutive 00s is he same as the ammount of digits following them,
+    # we need to consider all possible truncations of the prefix ending with 0s.
+    # The problem comes from determining NL to numbers: "seventy-five" could be interpreted as
+    # 75 or 705 depending on the context.
+    # Example:
+    # "20 1" -> ["20 1", "21"]
+    # "400 24" -> ["400 24", "4 24"]
+    # If the amount of consecutive 0s is lower than the amount of digits following them,
+    # we do not consider truncations as seventy twenty can only be interpreted in one way.
+    # Example:
+    # "40 20" -> ["40 20"]
+    consecutive_zeros = len(prefix_variance) - len(prefix_variance.rstrip("0"))
+    digits_following = suffix_to_check.find(" ") if " " in suffix_to_check else len(suffix_to_check)
+    logger.info("Consecutive zeros in prefix: %d", consecutive_zeros)
+    logger.info("Digits following in suffix: %d", digits_following)
+
+    if consecutive_zeros < digits_following:
+        logger.info("Consecutive zeros are less than the digits following, no need to consider truncations.")
+        return [phone_number]
     # Create list of all possible prefixes
     # if prefix 10 -> ["10", "1"]
-    # if prefix 100 -> ["100", "10", "1"] and so on.
-    prefixes = [prefix_variance]
-    while prefix_variance.endswith("0"):
-        prefix_variance = prefix_variance[:-1]
-        prefixes.append(prefix_variance)
+    prefixes = [prefix_variance, prefix_variance.rstrip("0")]
     logger.info("Prefixes generated: %s", prefixes)
     # convert prefix into a set to remove duplicates.
     prefixes = set(prefixes)
 
-    # we then check the suffix for further 0-space variances recursively.
+    # Check the suffix for further 0-space variances recursively.
     # Following the example:
     # New prefix to check: ["4 5 60", "4 5 6"]
     # New suffix to check: "7 8 9"
@@ -137,9 +152,9 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     # We combine the new variants with the existing ones
     # Following the example:
     # Existing variants (only by checking prefix):
-    #       ["1 2 30 4 5 60 7 8 9", "1 2 3 4 5 60 7 8 9"]
+    #       ["1 2 300 24 5 60 7 8 9", "1 2 3 24 5 60 7 8 9"]
     # New variants (after checking suffix for new iteractions):
-    #       ["1 2 30 4 5 6 7 8 9", "1 2 3 4 5 6 7 8 9"]
+    #       ["1 2 300 24 5 6 7 8 9", "1 2 3 24 5 6 7 8 9"]
 
     logger.info("0-space variance check complete.")
     return list(variants)
@@ -165,13 +180,14 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
         raise ValueError("Invalid phone number.")
 
     variants = {phone_number}
-    if search(r"\s\d\d\s", phone_number):
+    if search(r"(\s|^)\d\d(\s|$)", phone_number):
         logger.info("2-digits variance detected.")
-        for match in findall(r"\s(\d[1-9])\s", phone_number):
+        for match in findall(r"(\s|^)(\d[1-9])(\s|$)", phone_number):
             logger.info("2-digits match found: %s", match)
             logger.info("Adding a 0 to the 2-digits match '%s' in phone number.", match)
-            replace = match[0] + "0" + match[1]
-            variants.add(phone_number.replace(match, replace))
+            replace = match[1][0] + "0" + match[1][1]
+            for variant in variants.copy():
+                variants.add(variant.replace("".join(match), replace))
 
     return list(variants)
 
@@ -235,6 +251,8 @@ def check_ambiguities(phone_number: str) -> list[str]:
     logger.info("Variants after 0-space variance check: %d", len(variants))
 
     # Add 2-digits variances to the existing variants
+    # TODO: implement n-digits variances
+    # Althoguh it is not expected, n-digits variances might be needed in the future
     for variant in variants.copy():
         logger.info("Checking 2 digits variances for variant: %s", variant)
         variants += _check_2digits_variances(variant)
