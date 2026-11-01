@@ -128,7 +128,8 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
     logger.info("Digits following in suffix: %d", digits_following)
 
     if consecutive_zeros < digits_following:
-        logger.info("Consecutive zeros are less than the digits following, no need to consider truncations.")
+        logger.info("Consecutive zeros are less than the digits following,\
+                    no need to consider truncations.")
         return [phone_number]
     # Create list of all possible prefixes
     # if prefix 10 -> ["10", "1"]
