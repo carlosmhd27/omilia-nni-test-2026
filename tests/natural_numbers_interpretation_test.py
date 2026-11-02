@@ -78,6 +78,7 @@ def test_check_0space_variances_invalid_types():
 def test_check_2digits_variances():
 
     variants = _check_2digits_variances("1 23 4")
+    print(variants)
     expected_variants = ["1 23 4", "1 203 4"]
     for variant in variants:
         assert variant in expected_variants

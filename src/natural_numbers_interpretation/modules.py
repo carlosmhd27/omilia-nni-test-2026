@@ -133,7 +133,7 @@ def _check_0space_variances(phone_number: str | int) -> list[str]:
         return [phone_number]
     # Create list of all possible prefixes
     # if prefix 10 -> ["10", "1"]
-    prefixes = [prefix_variance, prefix_variance.rstrip("0")]
+    prefixes = [prefix_variance, prefix_variance[:-digits_following]]
     logger.info("Prefixes generated: %s", prefixes)
     # convert prefix into a set to remove duplicates.
     prefixes = set(prefixes)
@@ -188,7 +188,8 @@ def _check_2digits_variances(phone_number: str) -> list[str]:
             logger.info("Adding a 0 to the 2-digits match '%s' in phone number.", match)
             replace = match[1][0] + "0" + match[1][1]
             for variant in variants.copy():
-                variants.add(variant.replace("".join(match), replace))
+                print(replace)
+                variants.add(variant.replace(match[1], replace))
 
     return list(variants)
 
