@@ -11,8 +11,8 @@ To get started with this project, you can install the required dependencies and 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/omilia-natural-numbers-interpretation.git
-   cd omilia-natural-numbers-interpretation
+   git clone https://github.com/carlosmhd27/omilia-nni-test-2026.git
+   cd omilia-nni-test-2026
    ```
 
 2. Install uv and syncing it:
